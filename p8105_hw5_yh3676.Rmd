@@ -7,9 +7,11 @@ output: github_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(ggplot2)
 library(broom)
 library(purrr)
 library(viridis)
+set.seed(1)
 
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -74,3 +76,34 @@ tidy_df |>
 * From the spaghetti plot, the values of the 10 participants in the experimental arm has an increasing trend over 8 weeks. In contrast, the values of the 10 participants in the control arm do not have this trend.
 
 
+## Problem 3
+Simulate for $ \mu = 0 $
+```{r}
+t_test = function(mu){
+  sim_data = tibble(
+    rnorm(n = 30, mean = mu, sd = 5)) 
+  
+  t_test_result = 
+    t.test(sim_data) |>
+    broom::tidy() |>
+    select(estimate, p.value)
+  
+  return(t_test_result)
+}
+  
+mu_0 =
+  tibble(
+    mu = 0,
+    iter = 1:5000
+  ) |>
+  mutate(t_test_df = map(mu, t_test)) |>
+  unnest(t_test_df)
+```
+
+Simulate for $\mu = \{1, 2, 3, 4, 5, 6\}$
+```{r}
+multimu_result =
+  expand_grid(mu = 1:6, iteration = 1:5000) |>
+  mutate(multimu_df = map(mu, t_test)) |>
+  unnest(multimu_df)
+```
