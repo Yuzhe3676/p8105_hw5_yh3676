@@ -3,7 +3,6 @@ title: "p8105_hw5_yh3676"
 author: "Yuzhe Hu"
 date: "2023-11-15"
 output: github_document
-latex_engine: xelatex
 ---
 
 ```{r setup, include=FALSE}
@@ -38,7 +37,7 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
 For this problem, we are interested in data gathered and made public by _The Washington Post_ on homicides in 50 large U.S. cities. The code chunk below imports and cleans the data.
 
-```{r}
+```{r, message=FALSE}
 homicide_df = 
   read_csv("./data/homicide-data.csv", na = c("", "NA", "Unknown")) %>%
   mutate(
@@ -230,4 +229,4 @@ rejected_result |>
   "Average Estimate μ_hat (when null was rejected) vs. True μ")
 ```
 
-* The sample average of  $\hat{\mu}$ across tests for which the null is rejected does not equal to the true value of μ, especially when μ is close to null value 0, for example when μ = 1, 2. This is because when μ is close to null value 0, the effect size is relative small and the power is relative low according to our first graph in problem 3. When μ is far larger than 0, the power increases as effect size increases, most of the samples will have the null rejected and the average estimate will approximately equal to the true value of μ.
+* The sample average of μ_hat across tests for which the null is rejected does not equal to the true value of μ, especially when μ is close to null value 0, for example when μ = 1, 2. This is because when μ is close to null value 0, the effect size is relative small and the power is relative low according to our first graph in problem 3. When μ is far larger than 0, the power increases as effect size increases, most of the samples will have null rejected and the average estimate will approximately equal to the true value of μ.
