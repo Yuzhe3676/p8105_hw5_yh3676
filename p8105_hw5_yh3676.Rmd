@@ -16,8 +16,8 @@ set.seed(1)
 knitr::opts_chunk$set(
 	echo = TRUE,
 	warning = FALSE,
-	fig.width = 10, 
-  fig.height = 8,
+	fig.width = 8, 
+  fig.height = 6,
 	dpi = 800,
   out.width = "90%"
 )
@@ -39,7 +39,7 @@ For this problem, we are interested in data gathered and made public by _The Was
 
 ```{r, message=FALSE}
 homicide_df = 
-  read_csv("./data/homicide-data.csv", na = c("", "NA", "Unknown")) %>%
+  read_csv("./data/homicide-data.csv", na = c("", "NA", "Unknown")) |> 
   mutate(
     city_state = str_c(city, state, sep = ", "),
     resolution = case_when(
@@ -47,7 +47,7 @@ homicide_df =
       disposition == "Open/No arrest"        ~ "unsolved",
       disposition == "Closed by arrest"      ~ "solved"
     )
-  ) %>% 
+  ) |>  
   filter(city_state != "Tulsa, AL") 
 ```
 
@@ -57,9 +57,9 @@ In the next code chunk, I group within cities and summarize to produce the total
 
 ```{r}
 city_homicide_df = 
-  homicide_df %>% 
-  select(city_state, disposition, resolution) %>% 
-  group_by(city_state) %>% 
+  homicide_df |> 
+  select(city_state, disposition, resolution) |> 
+  group_by(city_state) |>  
   summarize(
     hom_total = n(),
     hom_unsolved = sum(resolution == "unsolved"))
@@ -70,10 +70,10 @@ Focusing only on Baltimore, MD, I can use the `prop.test` and `broom::tidy` func
 ```{r}
 bmore_test = 
   prop.test(
-    x = filter(city_homicide_df, city_state == "Baltimore, MD") %>% pull(hom_unsolved),
-    n = filter(city_homicide_df, city_state == "Baltimore, MD") %>% pull(hom_total)) 
+    x = filter(city_homicide_df, city_state == "Baltimore, MD") |>  pull(hom_unsolved),
+    n = filter(city_homicide_df, city_state == "Baltimore, MD") |>  pull(hom_total)) 
 
-broom::tidy(bmore_test) %>% 
+broom::tidy(bmore_test) |>  
   knitr::kable(digits = 3)
 ```
 
@@ -81,21 +81,21 @@ Building on this code, I can use functions in the `purrr` package to obtain esti
 
 ```{r}
 test_results = 
-  city_homicide_df %>% 
+  city_homicide_df |> 
   mutate(
     prop_tests = map2(hom_unsolved, hom_total, \(x, y) prop.test(x = x, n = y)),
-    tidy_tests = map(prop_tests, broom::tidy)) %>% 
-  select(-prop_tests) %>% 
-  unnest(tidy_tests) %>% 
-  select(city_state, estimate, conf.low, conf.high) %>% 
+    tidy_tests = map(prop_tests, broom::tidy)) |>  
+  select(-prop_tests) |>  
+  unnest(tidy_tests) |>  
+  select(city_state, estimate, conf.low, conf.high) |>  
   mutate(city_state = fct_reorder(city_state, estimate))
 ```
 
 Finally, I make a plot showing the estimate (and CI) of the proportion of unsolved homicides in each city.
 
 ```{r}
-test_results %>% 
-  mutate(city_state = fct_reorder(city_state, estimate)) %>% 
+test_results |>  
+  mutate(city_state = fct_reorder(city_state, estimate)) |>  
   ggplot(aes(x = city_state, y = estimate)) + 
   geom_point() + 
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) + 
